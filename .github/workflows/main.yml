@@ -25,7 +25,10 @@ jobs:
       - name: Run connection test
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
           PINECONE_HOST: ${{ secrets.PINECONE_HOST }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
