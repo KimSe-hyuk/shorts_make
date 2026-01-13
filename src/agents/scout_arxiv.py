@@ -12,12 +12,19 @@ import httpx
 ARXIV_API_URL = "https://export.arxiv.org/api/query"
 
 
-def build_query_url(keywords: list[str], max_results: int = 5) -> str:
+def build_query_url(
+    keywords: list[str],
+    max_results: int = 5,
+    sort_by: str | None = None,
+    sort_order: str | None = None,
+) -> str:
     """키워드 기반 ArXiv 검색 URL을 생성한다.
 
     Args:
         keywords: 논문에 반드시 포함될 키워드 목록.
         max_results: 가져올 논문 개수.
+        sort_by: 정렬 기준 필드.
+        sort_order: 정렬 방식.
 
     Returns:
         ArXiv API 요청 URL 문자열.
@@ -27,10 +34,15 @@ def build_query_url(keywords: list[str], max_results: int = 5) -> str:
         for keyword in keywords
     ]
     search_query = quote(" AND ".join(query_terms))
-    return (
+    request_url = (
         f"{ARXIV_API_URL}?search_query={search_query}"
         f"&start=0&max_results={max_results}"
     )
+    if sort_by:
+        request_url += f"&sortBy={sort_by}"
+    if sort_order:
+        request_url += f"&sortOrder={sort_order}"
+    return request_url
 
 
 def parse_arxiv_feed(xml_text: str) -> list[dict[str, Any]]:
@@ -69,17 +81,29 @@ def parse_arxiv_feed(xml_text: str) -> list[dict[str, Any]]:
     return entries
 
 
-async def fetch_arxiv_papers(keywords: list[str], max_results: int = 5) -> list[dict[str, Any]]:
+async def fetch_arxiv_papers(
+    keywords: list[str],
+    max_results: int = 5,
+    sort_by: str | None = None,
+    sort_order: str | None = None,
+) -> list[dict[str, Any]]:
     """ArXiv API를 호출해 논문 정보를 수집한다.
 
     Args:
         keywords: 검색에 사용할 키워드 목록.
         max_results: 가져올 논문 개수.
+        sort_by: 정렬 기준 필드.
+        sort_order: 정렬 방식.
 
     Returns:
         논문 메타데이터 목록.
     """
-    query_url = build_query_url(keywords, max_results=max_results)
+    query_url = build_query_url(
+        keywords,
+        max_results=max_results,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
 
     async with httpx.AsyncClient(timeout=20.0) as client:
         response = await client.get(query_url)
@@ -108,17 +132,42 @@ def format_paper_output(paper: dict[str, Any], index: int) -> str:
     )
 
 
-async def main() -> None:
-    """History/Artificial Intelligence 관련 논문 5편을 출력한다."""
-    keywords = ["History", "Artificial Intelligence"]
-    papers = await fetch_arxiv_papers(keywords, max_results=5)
+def format_history_of_science_output(paper: dict[str, Any], index: int) -> str:
+    """History of Science 논문을 제목과 요약으로 정리한다.
+
+    Args:
+        paper: 논문 메타데이터.
+        index: 출력 순번.
+
+    Returns:
+        화면 출력용 문자열.
+    """
+    title = paper.get("title", "")
+    summary = paper.get("summary", "")
+    return f"[{index}] {title}\n- 요약: {summary}\n"
+
+
+async def print_history_of_science_papers(max_results: int = 3) -> None:
+    """History of Science 최신 논문 정보를 출력한다."""
+    keywords = ["History of Science"]
+    papers = await fetch_arxiv_papers(
+        keywords,
+        max_results=max_results,
+        sort_by="submittedDate",
+        sort_order="descending",
+    )
 
     if not papers:
         print("검색 결과가 없습니다.")
         return
 
     for index, paper in enumerate(papers, start=1):
-        print(format_paper_output(paper, index))
+        print(format_history_of_science_output(paper, index))
+
+
+async def main() -> None:
+    """History of Science 최신 논문 3편을 출력한다."""
+    await print_history_of_science_papers()
 
 
 if __name__ == "__main__":
