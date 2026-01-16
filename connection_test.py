@@ -38,11 +38,32 @@ def load_env() -> None:
     load_local_secrets()
 
 
+def _sanitize_env_value(value: str) -> str:
+    """환경 변수 값을 정리한다.
+
+    Args:
+        value: 원본 환경 변수 문자열.
+
+    Returns:
+        주석과 따옴표를 제거한 값.
+    """
+    cleaned = value.strip()
+    if "#" in cleaned:
+        cleaned = cleaned.split("#", 1)[0].rstrip()
+    if (cleaned.startswith('"') and cleaned.endswith('"')) or (
+        cleaned.startswith("'") and cleaned.endswith("'")
+    ):
+        cleaned = cleaned[1:-1].strip()
+    return cleaned
+
+
 def get_env(*names: str) -> Optional[str]:
     for name in names:
         value = os.getenv(name)
         if value:
-            return value
+            cleaned = _sanitize_env_value(value)
+            if cleaned:
+                return cleaned
     return None
 
 
