@@ -106,22 +106,13 @@ def check_pinecone() -> Tuple[bool, str]:
         return False, "missing PINECONE_API_KEY"
 
     try:
-        try:
-            from pinecone import Pinecone
+        from pinecone import Pinecone
 
-            if pinecone_host:
-                client = Pinecone(api_key=pinecone_key, host=pinecone_host)
-            else:
-                client = Pinecone(api_key=pinecone_key)
-            indexes = client.list_indexes()
-        except ImportError:
-            import pinecone
-
-            pinecone_env = get_env("PINECONE_ENVIRONMENT")
-            if not pinecone_env:
-                return False, "missing PINECONE_ENVIRONMENT for legacy client"
-            pinecone.init(api_key=pinecone_key, environment=pinecone_env)
-            indexes = pinecone.list_indexes()
+        if pinecone_host:
+            client = Pinecone(api_key=pinecone_key, host=pinecone_host)
+        else:
+            client = Pinecone(api_key=pinecone_key)
+        indexes = client.list_indexes()
 
         if indexes is None:
             return True, "connected"
