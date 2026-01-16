@@ -1,6 +1,6 @@
 # ⚖️ OMNI-ARCHIVE 프로젝트 실행 규칙 (RULES.md)
 
-> **Version:** 2.7 (Autonomous Workflow & Security Optimized)
+> **Version:** 2.8 (Autonomous Workflow & Security Optimized)
 > **Principle:** 고지능적 사료 분석과 의도적 불완전함의 조화, 그리고 완전 자율형 보고 체계.
 
 ---
@@ -30,13 +30,8 @@
 ## 6. 예외 처리 및 복구 (Fail-safe)
 - **API 폴백:** 장애 발생 시 하위 모델(Gemini Flash)이나 로컬 백업으로 즉시 전환한다.
 
-## 7. 자율 보고 및 동기화 수칙 (Autonomous Push Protocol) - [NEW]
-- **검증 필수:** 모든 코드 수정 후에는 반드시 `python connection_test.py`를 실행하여 통과 여부를 확인한다.
-- **커밋 메시지 규격:** `[Agent Name] 작업 내용 요약` 형식을 준수한다. (예: `[Scout] ArXiv 크롤링 로직 추가`)
-- **원자적 푸시:** 한 번의 푸시에는 하나의 기능적 완성 단위만 포함한다.
-- **자동 푸시 실행:** 테스트 성공 시 아래 명령을 일괄 실행한다.
-  ```bash
-  git add .
-  git commit -m "[에이전트명] 작업 요약"
-  git push origin master
-  ```
+## 7. 자원 효율화 및 검증 수칙 (Resource Optimization & Verification) - [REVISED]
+- **쿼터 방어 (Quota Defense):** 로직 수정 및 단위 테스트 단계에서는 실제 API 호출을 금지하고, 반드시 'Mock 데이터' 또는 'Cached Response'를 사용한다.
+- **선택적 검증 (Selective Verification):** 전체 시스템 부하를 줄이기 위해 수정된 모듈만 선별하여 테스트한다. (예: `python connection_test.py --module scout`)
+- **예외 조항 (Force Push Protocol):** 외부 API 장애 또는 쿼터 초과(Rate Limit) 발생 시, 사령관(User)의 명시적 승인 하에 연결 검증 단계를 우회하여 배포할 수 있다.
+- **자동 푸시 실행:** 검증 통과 시 표준 절차에 따라 `git push`를 수행한다.

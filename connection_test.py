@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import argparse
 from typing import Optional, Tuple
 
 
@@ -155,25 +156,47 @@ def check_gemini() -> Tuple[bool, str]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="OMNI-ARCHIVE Connection Tester")
+    parser.add_argument("--module", type=str, help="Specific module to test (supabase, pinecone, gemini)")
+    args = parser.parse_args()
+
     load_env()
 
-    checks = {
-        "Supabase": check_supabase(),
-        "Pinecone": check_pinecone(),
-        "Gemini": check_gemini(),
+    # 모듈 매핑 정의
+    all_checks = {
+        "supabase": ("Supabase", check_supabase),
+        "pinecone": ("Pinecone", check_pinecone),
+        "gemini": ("Gemini", check_gemini),
     }
 
+    # 실행할 테스트 필터링
+    tests_to_run = {}
+    if args.module:
+        module_key = args.module.lower()
+        if module_key in all_checks:
+            name, func = all_checks[module_key]
+            tests_to_run[name] = func
+        else:
+            print(f"Error: Unknown module '{args.module}'. Available: {list(all_checks.keys())}")
+            return 1
+    else:
+        # 인자 없으면 전체 실행
+        tests_to_run = {name: func for name, func in all_checks.values()}
+
+    print(f"Starting connection tests... (Target: {args.module if args.module else 'ALL'})")
+
     all_success = True
-    for name, (ok, detail) in checks.items():
+    for name, func in tests_to_run.items():
+        ok, detail = func()
         status = "SUCCESS" if ok else "FAIL"
         print(f"{name}: {status} ({detail})")
         all_success = all_success and ok
 
     if all_success:
-        print("ALL CONNECTIONS: SUCCESS")
+        print("VERIFICATION: SUCCESS")
         return 0
 
-    print("One or more connections failed.")
+    print("VERIFICATION: FAILED")
     return 1
 
 
