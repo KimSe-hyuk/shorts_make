@@ -15,7 +15,7 @@ DEFAULT_TIMEOUT = 20.0
 DEFAULT_MAX_RESULTS = 5
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 LOG_PATH = os.path.join(ROOT_DIR, "logs", "omni_system.log")
-DEFAULT_KEYWORDS = ["AI", "IT 트렌드"]
+DEFAULT_KEYWORDS = ["물가", "출근길", "알고리즘", "야근", "교통체증", "월세"]
 
 
 def _get_api_key() -> str | None:
@@ -93,6 +93,18 @@ def _format_video_output(video: dict[str, Any], index: int) -> str:
         f"- 링크: {video.get('link', '')}\n"
         f"- 요약: {video.get('summary', '')}\n"
     )
+
+
+def _build_hook_line(keyword: str) -> str:
+    """나폴레옹식 훅 문장을 생성한다.
+
+    Args:
+        keyword: 키워드 문자열.
+
+    Returns:
+        훅 문장.
+    """
+    return f"나폴레옹: '{keyword}'... 이것은 현대판 워털루인가?"
 
 
 def _append_log_line(path: str, line: str) -> None:
@@ -239,6 +251,7 @@ async def run_scout() -> Tuple[bool, str]:
     for group in report_data:
         keyword = group.get("keyword", "")
         output_lines.append(f"\n[Keyword] {keyword}")
+        output_lines.append(_build_hook_line(keyword))
         videos = group.get("videos", [])
         if not videos:
             output_lines.append("- 검색 결과 없음")

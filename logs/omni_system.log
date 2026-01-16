@@ -7,3 +7,5 @@
 2026-01-16T20:53:12 | YouTube 수집 실패: AI: HTTPStatusError: Client error '400 Bad Request' for url 'https://www.youtube.com/feeds/videos.xml?search_query=AI'
 For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400 | IT 트렌드: HTTPStatusError: Client error '400 Bad Request' for url 'https://www.youtube.com/feeds/videos.xml?search_query=IT%20%ED%8A%B8%EB%A0%8C%EB%93%9C'
 For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-01-16T22:28:32 | History 수집 성공: 5개 쿼리
+2026-01-16T22:28:32 | History 보고서 생성 완료: 5개 쿼리
